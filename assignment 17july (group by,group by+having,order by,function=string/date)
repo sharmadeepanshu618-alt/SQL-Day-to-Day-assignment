@@ -1,0 +1,90 @@
+show tables;
+-- Q1. Find the total number of employees in each department
+select dept,count(name) from employees group by dept order by dept;
+
+-- Q2. Find the total salary paid per department.
+select dept,sum(salary) as totalsalary from employees group by dept order by dept;
+
+-- ⚠ Q3. Find the average salary in each city.
+select city,avg(salary) as avgsalary from employees group by city order by city;
+
+-- Q4. Find the maximum salary in each department
+select dept,max(salary) as maxsalary from employees group by dept order by dept;
+
+-- Q5. Find the minimum salary in each department.
+select dept,min(salary) as minsalary from employees group by dept order by dept;
+
+--  Q6. List departments with their employee count, sorted by count descending.
+select dept,count(*) as empcount from employees group by dept order by dept,empcount desc;
+
+--  Q7. List cities with total salary, sorted by TotalSalary ascending.
+select city,sum(salary) as totalsalary from employees group by city order by totalsalary;
+
+-- Q8. List all employees ordered by department (A–Z) then by salary (highest first)
+select name,dept,salary from employees order by dept,salary desc;
+
+-- Q9. List all employees ordered by city (A–Z) then by join date (oldest first)
+select name,city,joindate from employees order by city,joindate;
+
+-- Q10. List all employees ordered by role (A–Z) then by salary (lowest first).
+select name,role, salary from employees order by role,salary; 
+
+-- Q11. Show only departments that have more than 7 employees
+select dept,count(name) as empcount from employees group by dept having empcount>7 order by dept;
+
+-- Q12. Show departments where the average salary exceeds 65000
+select dept,avg(salary) as avgsalary from employees group by dept having avgsalary >65000 order by dept;
+
+-- Q13. Show cities where the total salary bill is greater than 650000.
+select city,sum(salary) as totalsalary from employees group by city having totalsalary>650000; 
+
+-- Q14. Show departments where the maximum salary is at least 80000.
+select dept,max(salary) as maxsalary from employees group by dept having maxsalary>=80000;
+
+-- Q15. Show roles that appear more than 5 times in the table
+select role ,count(*) as rolecount from employees group by role having rolecount>5 order by role;
+
+-- Q16. Find the overall average salary of all employees.
+ select avg(salary) as companyavgsalary from employees ;
+ 
+ -- Q17. Count how many female employees exist in each department
+ select dept,count(gender) as femalecount from employees where gender='f' group by dept order by dept;
+ 
+ -- Q18. Find the highest and lowest salary across the entire company
+ select max(salary) as higest, min(salary) as lowest from employees;
+ 
+ -- Q19. Find the total salary paid to employees who joined after 2019-01-01.
+select sum(salary) as totalsalary from employees where joindate > '2019-01-01';
+
+-- Q20. Find the average salary grouped by gender.
+select gender,avg(salary) as avgsalary from employees group by gender;
+
+-- Q21. Find total employees grouped by department AND city
+select dept,city,count(*) from employees group by dept,city order by dept,city;
+
+-- Q22. Find average salary grouped by department AND gender
+select dept,gender,avg(salary) as avgsalary from employees group by dept,gender order by dept,gender;
+
+-- Q23. Find total salary grouped by city AND role, ordered by city and total salary descending.
+select city,role,sum(salary) as totalsalary from employees group by city,role order by city,totalsalary desc;
+
+-- Q24. Count employees grouped by department AND role, show only groups with more than 1 employee.
+select dept,role,count(*) as empcount from employees group by dept,role  having empcount>1 order by dept,role;
+
+-- Q25. Find max salary grouped by city AND gender.
+select city,gender,max(salary) as maxsalary from employees group by city,gender order by city;
+
+-- Q26. Show departments with avg salary > 60000, ordered by avg salary descending
+select dept,avg(salary) as avgsalary from employees group by dept having avgsalary>60000 order by avgsalary desc;
+
+-- Q27. Show city+dept combos with more than 1 employee, ordered by count descending then city
+select city,dept,count(*) as empcount from employees group by city,dept having empcount>1 order by empcount desc,city;
+
+--  Q28. Show roles where total salary exceeds 300000, ordered by total salary ascending.
+select role,sum(salary) as totalsalary from employees group by role having totalsalary>300000 order by totalsalary ;
+
+-- Q29. List each employee's name in UPPER CASE along with the year they joined, ordered by join year.
+select upper(name) as empname,year(joindate) as joinyear from employees order by joinyear;
+
+-- Q30. Find the number of employees who joined each year, sorted by year.
+select year(joindate) as joinyear,count(*) as joiners from employees  group by joinyear order by joinyear;
