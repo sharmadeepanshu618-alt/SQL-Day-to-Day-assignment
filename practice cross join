@@ -1,0 +1,202 @@
+Q1.
+
+Display all employee names with all department names using CROSS JOIN.
+
+Q2.
+
+There are:
+
+4 employees
+3 departments
+
+How many rows will a CROSS JOIN return?
+
+Q3.
+
+Write a query to display all products with all categories using CROSS JOIN.
+
+Q4.
+
+True or False:
+
+CROSS JOIN requires an ON condition.
+
+Q5.
+
+What is another name for the result of a CROSS JOIN?
+
+A. Natural Join
+
+B. Cartesian Product
+
+C. Outer Join
+
+D. Self Join
+
+
+select e.name,d.name from employee e cross join department d ; 
+2.12 
+3.select p.name,c.name from products p cross join category c ; 
+4.no 
+5.b
+
+
+
+Q1.
+
+Write a query to display every employee with every project using CROSS JOIN.
+
+Tables:
+
+employee(empid, name)
+project(projectid, projectname)
+Q2.
+
+If the Employee table has 8 rows and the Project table has 6 rows, how many rows will the result of a CROSS JOIN contain?
+
+Q3.
+
+Which JOIN is best when you need every possible combination of rows from two tables?
+
+A. INNER JOIN
+
+B. LEFT JOIN
+
+C. RIGHT JOIN
+
+D. CROSS JOIN
+
+Q4.
+
+Which statement is FALSE?
+
+A. CROSS JOIN returns the Cartesian Product.
+
+B. CROSS JOIN needs an ON clause.
+
+C. CROSS JOIN combines every row with every other row.
+
+D. The number of rows = rows in Table1 × rows in Table2.
+
+Q5.
+
+Suppose:
+
+Employee
+EmpID	Name
+1	Amit
+2	Rahul
+3	Riya
+Shift
+Shift
+Morning
+Evening
+
+What will be the total number of rows after this query?
+
+SELECT e.name, s.shift
+FROM employee e
+CROSS JOIN shift s;
+
+answer=>
+
+1.select * from employee e cross join project p; 
+2.48 
+3.d 
+4b 
+5.6
+
+
+Q1.
+
+Employee = 10 rows
+
+Department = 5 rows
+
+Shift = 3 rows
+
+Query:
+
+SELECT *
+FROM employee e
+CROSS JOIN department d
+CROSS JOIN shift s;
+
+Kitni rows aayengi?
+
+Q2.
+
+Write a query to display:
+
+Every employee
+Every department
+Every shift
+
+using three tables.
+
+Tables:
+
+employee
+department
+shift
+Q3. MCQ
+
+Which of the following is TRUE?
+
+A. CROSS JOIN removes duplicate rows.
+
+B. CROSS JOIN requires a common column.
+
+C. CROSS JOIN returns every possible combination.
+
+D. CROSS JOIN returns only matching rows.
+
+Q4.
+
+Suppose:
+
+Employee
+
+Name
+A
+B
+
+Department
+
+Dept
+IT
+HR
+
+Shift
+
+Shift
+Morning
+Night
+
+How many rows will the result contain after:
+
+SELECT *
+FROM employee
+CROSS JOIN department
+CROSS JOIN shift;
+Q5.
+
+Can GROUP BY be used after a CROSS JOIN?
+
+A. Yes
+
+B. No
+
+C. Only with INNER JOIN
+
+D. Only with LEFT JOIN
+
+
+answer=>
+
+
+1.150 
+2.select * from employee cross join department cross join shift ; 
+3.c 
+4.8 
+5.a
