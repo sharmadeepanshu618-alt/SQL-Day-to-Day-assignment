@@ -1,0 +1,119 @@
+-- SQL  SUBQUERY PRACTICE SHEET QUESTIONS
+
+
+use newdb;
+CREATE TABLE CUSTOMERS (
+CUSTOMER_ID VARCHAR(10) NOT NULL,
+CUSTOMER_NAME VARCHAR(100) NOT NULL,
+CITY VARCHAR(100) NOT NULL,
+CREDIT_LIMIT DECIMAL(10,2) NOT NULL,
+PRIMARY KEY (CUSTOMER_ID)
+);
+INSERT INTO CUSTOMERS VALUES
+('C01','Ravi Kumar', 'Delhi', 100000.00),
+('C02','Priya Singh','Mumbai', 80000.00),
+('C03','Amit Sharma','Bangalore', 60000.00),
+('C04','Neha Joshi', 'Chennai', 50000.00);
+
+CREATE TABLE PRODUCTS (
+PRODUCT_ID VARCHAR(10) NOT NULL,
+PRODUCT_NAME VARCHAR(100) NOT NULL,
+CATEGORY VARCHAR(100) NOT NULL,
+PRICE DECIMAL(10,2) NOT NULL,
+PRIMARY KEY (PRODUCT_ID)
+);
+INSERT INTO PRODUCTS VALUES
+('P01','Laptop', 'Electronics', 55000.00),
+('P02','Headphones','Electronics', 3000.00),
+('P03','Desk Chair','Furniture', 12000.00),
+('P04','Notebook', 'Stationery', 150.00);
+
+CREATE TABLE ORDERS (
+ORDER_ID INT NOT NULL AUTO_INCREMENT,
+CUSTOMER_ID VARCHAR(10) NOT NULL,
+PRODUCT_ID VARCHAR(10) NOT NULL,
+QUANTITY INT NOT NULL,
+ORDER_DATE DATE NOT NULL,
+STATUS VARCHAR(20) NOT NULL,
+PRIMARY KEY (ORDER_ID),
+FOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMERS(CUSTOMER_ID),
+FOREIGN KEY (PRODUCT_ID) REFERENCES PRODUCTS(PRODUCT_ID)
+);
+INSERT INTO ORDERS (CUSTOMER_ID,PRODUCT_ID,QUANTITY,ORDER_DATE,STATUS) VALUES
+('C01','P01',2,'2024-01-05','Delivered'),
+('C02','P02',1,'2024-01-10','Pending'),
+('C01','P03',5,'2024-01-12','Delivered'),
+('C03','P01',3,'2024-01-15','Cancelled'),
+('C02','P04',2,'2024-02-01','Delivered'),
+('C04','P02',1,'2024-02-05','Pending'),
+('C03','P03',4,'2024-02-10','Delivered');
+
+show tables;
+describe orders; 
+
+ -- 1:  Find the names of customers who have placed at least one order.
+ select customer_name from customers where customer_id in (select distinct customer_id from orders);
+ 
+ -- 2:  Find products that have NEVER been ordered. 
+ select product_name from products where product_id not in (select order_id from orders);
+ 
+ -- 3:  Find customers whose credit limit is above the average credit limit of all customers.
+ select customer_name,credit_limit from customers where credit_limit>(select avg(credit_limit) from customers);
+ 
+ -- 4:  Find the most expensive product. 
+ select product_name,price from products where price =(select max(price) from products);
+ 
+ --  5: Orders with product price above 10000 
+ select order_id,product_id,status from orders where product_id in (select product_id from products where price >10000);
+ 
+ --  6:  Find customers who have placed more than 2 orders. 
+ select customer_name from customers where customer_id in (select customer_id from orders group by customer_id having count(*)>2);
+ 
+ --  7:  Find all 'Delivered' orders where the product belongs to the 'Electronics' category. 
+ select order_id,customer_id,product_id from orders where status='delivered' and product_id in 
+ (select product_id from products where category='Electronics');
+ 
+ -- 8:  Find the customer who placed the maximum number of orders. 
+ select customer_name from customers where customer_id = (select customer_id from orders group by customer_id order by count(*) desc limit 1);
+ 
+ -- 9 Find products whose price is greater than ALL products in the 'Stationery' category.
+ select product_name,price from products where price >all (select price from products where category='stationery'); 
+ 
+ -- 10:  Find customers who have NOT placed any orders with status 'Cancelled'.
+ select customer_name from customers where customer_id not in (select customer_id from orders where status='cancelled');
+ 
+ --  11:  Find orders placed by customers from 'Delhi'. 
+ select order_id,customer_id,status from orders where customer_id in (select customer_id from customers where city='delhi');
+ 
+ --  12:  Find products that have been ordered with a quantity greater than 3 at least once.
+ select product_id,product_name from products where product_id in (select distinct product_id from orders where quantity>3);
+ 
+ -- 13: Customers with credit limit less than Ravi Kumar's 
+ select customer_name,credit_limit from customers where credit_limit < (select  credit_limit from customers where customer_name='ravi kumar');
+ 
+--  14:  Find customers who have placed orders for products in the 'Furniture' category. 
+select customer_name from customers where customer_id in (select distinct customer_id from orders where product_id in
+(select product_id  from products where category='furniture'));
+
+--  15:  Find the second most expensive product.
+select product_name from products where price=(select max(price) from products where price<(select max(price) from products));
+
+--  16:  Find customers who exist in the CUSTOMERS table but have no record in the ORDERS table. (Use EXISTS)
+select customer_name from customers c where not exists (select 1 from orders o where o.customer_id=c.customer_id);
+ 
+--  17:  Find products that were ordered more total quantity than the average total quantity ordered per product. 
+SELECT PRODUCT_NAME FROM PRODUCTS WHERE  PRODUCT_ID IN ( SELECT PRODUCT_ID FROM ORDERS GROUP BY PRODUCT_ID HAVING SUM(QUANTITY)
+ > (SELECT AVG(total_qty) FROM (SELECT PRODUCT_ID, SUM(QUANTITY) AS total_qty FROM ORDERS GROUP BY PRODUCT_ID) t) );
+ 
+ 
+--  18.  Find orders where the ordered quantity is greater than the average quantity of orders for that same product. (Correlated) 
+SELECT o1.ORDER_ID, o1.PRODUCT_ID, o1.QUANTITY FROM   ORDERS o1 WHERE  o1.QUANTITY > (SELECT AVG(o2.QUANTITY) FROM ORDERS o2 WHERE o2.PRODUCT_ID = o1.PRODUCT_ID);
+
+ 
+--  19:  Find customers who have placed orders for every product that costs more than 10000.
+SELECT CUSTOMER_NAME FROM CUSTOMERS c WHERE  NOT EXISTS ( SELECT 1 FROM PRODUCTS p WHERE p.PRICE > 10000 AND NOT EXISTS (SELECT 1 FROM ORDERS o WHERE o.CUSTOMER_ID = 
+c.CUSTOMER_ID AND o.PRODUCT_ID = p.PRODUCT_ID) );
+
+
+-- 20:  Find products that have been ordered by at least 2 different customers.  
+SELECT PRODUCT_NAME FROM PRODUCTS WHERE  PRODUCT_ID IN (SELECT PRODUCT_ID FROM ORDERS GROUP BY PRODUCT_ID HAVING COUNT(DISTINCT CUSTOMER_ID) >= 2); 
