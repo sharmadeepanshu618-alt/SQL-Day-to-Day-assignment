@@ -1,0 +1,532 @@
+Question 1 — JOIN + GROUP BY + HAVING
+Tables:
+employees
+emp_id	emp_name	dept_id	salary
+
+departments
+dept_id	dept_name
+
+Question:
+Write a SQL query to find the departments where the average salary is greater than 60,000.
+Return dept_name and average_salary.
+Query likh bhai. Main interviewer ki tarah /10 score + kya sahi/galat evaluate karunga.
+
+Log in so ChatGPT can remember what matters to you.
+Log inSign up for free
+3. You said:
+select dept_name ,avg(salary) from employees group by dept_name having avg(salary )>60000;
+4. ChatGPT said:
+
+Bhai, concept sahi direction mein hai, but ek important issue hai.
+Score: 6.5/10
+Sahi kya tha:
+• AVG(salary) use kiya — correct.
+• GROUP BY use kiya — correct approach.
+• HAVING AVG(salary) > 60000 — bilkul correct filtering logic.
+• CTE ya unnecessary complexity nahi laayi.
+Issue:
+• dept_name employees table mein nahi diya gaya. dept_name departments table mein hai.
+• Isliye employees aur departments ko JOIN karna padega.
+• Aur question specifically average_salary naam ka output maang raha tha.
+Hint:
+Pehle employees ko departments se dept_id par join karo. Uske baad dept_name ke according grouping karo.
+Retry kar bhai. Pura answer abhi nahi dunga.
+5. You said:
+select d.dept_name,(select avg(salary) from employees e where dept_id=e.dept_id) as avg_salary from department d group by d.dept_name having avg_salary>60000;
+6. ChatGPT said:
+
+Bhai, retry mein subquery ka idea samajh aa raha hai, but yahan kuch issues hain.
+Score: 5/10
+Sahi kya tha:
+• AVG(salary) calculate karna correct.
+• Department-wise average nikalne ka intent correct.
+• HAVING se 60000 filter karna bhi correct concept hai.
+• Subquery use karna technically possible hai, but is question ke liye JOIN simpler hai.
+Galat kya hai:
+1. department d likha hai, jab table ka naam question mein departments tha.
+2. Subquery mein:
+where dept_id=e.dept_id
+
+yahan dept_id ambiguous/unqualified hai. Better hoga e.dept_id ko outer department ke d.dept_id se compare karna.
+3. Tumne GROUP BY d.dept_name kiya hai, but d.dept_id bhi relevant ho sakta hai.
+4. Sabse important: is question mein JOIN expected/simple approach hai, kyunki dept_name doosri table mein hai.
+Hint — next retry
+employees e ko departments d ke saath:
+ON e.dept_id = d.dept_id
+
+par join karo.
+Phir:
+• SELECT d.dept_name, AVG(e.salary) ...
+• GROUP BY d.dept_name
+• HAVING AVG(e.salary) > 60000
+Ab khud query likh — JOIN wala version.
+
+7. You said:
+having mai alias likh sakte h jaise maine isme likha
+8. ChatGPT said:
+
+Haan bhai, HAVING mein alias likh sakte ho — lekin SQL dialect par depend karta hai.
+Example:
+SELECT dept_name, AVG(salary) AS avg_salary
+FROM employees
+GROUP BY dept_name
+HAVING avg_salary > 60000;
+• MySQL: generally HAVING avg_salary > 60000 chalega. ✅
+• Kuch databases mein alias ko HAVING mein directly use nahi kar sakte, isliye safest/common approach hai:
+HAVING AVG(salary) > 60000
+
+Interview mein agar database specify nahi kiya gaya ho, toh HAVING AVG(salary) > 60000 likhna safest hai.
+Aur haan, tumhari previous query mein alias avg_salary use karna khud mein galat nahi tha. Main issue mainly table name aur subquery/JOIN approach tha.
+9. You said:
+select d.dept_name,avg(e.salary) as average_salary from department d join employee e on d.dept_id=e.dept_id group by d.dept_bame having average_salary >60000;
+10. ChatGPT said:
+
+Haan bhai, ab approach bilkul sahi direction mein hai.
+Score: 8.5/10
+Sahi kya kiya:
+• JOIN use kiya — ✅
+• dept_id par join kiya — ✅
+• AVG(e.salary) — ✅
+• GROUP BY + HAVING ka correct combination — ✅
+• average_salary alias use kiya — conceptually okay, especially MySQL mein. ✅
+Minor mistakes:
+• department → question mein table departments tha.
+• employee → question mein employees tha.
+• dept_bame → typo hai, dept_name hona chahiye.
+Ye minor naming/syntax mistakes hain, concept ko main correct maanta hoon.
+Interviewer verdict
+Agar actual interview mein tumne ye query likhi hoti, toh main bolta: "Good. You understand JOIN + GROUP BY + HAVING."
+Ab next question thoda difficulty increase karte hain.
+Question 2 — Window Function + JOIN
+Write a SQL query to display each employee's emp_name, dept_name, salary, and the rank of their salary within their department.
+Employees with the same salary should have the same rank.
+Use the tables we discussed.
+Query likh bhai.
+11. You said:
+select e.emp_name,d.dept_name,e.salary,rank() over(partition by department order by salary desc) as rank from employees e join department d on e.dept_id=d.dept_id;
+12. ChatGPT said:
+
+Bhai, approach almost correct hai. Window function ka structure sahi pakda hai.
+Score: 8/10
+Sahi kya tha:
+• RANK() use kiya — ✅
+• PARTITION BY department-wise ranking ke liye use kiya — ✅
+• ORDER BY salary DESC — highest salary ko rank 1 dene ke liye correct. ✅
+• employees aur departments ko join karne ka approach correct. ✅
+Issue:
+Tumne likha:
+PARTITION BY department
+
+Lekin department naam ka column humare tables mein nahi hai. employees mein dept_id hai aur departments mein bhi dept_id.
+Hint:
+PARTITION BY mein wahi column use karo jo employee ko uske department ke saath identify karta hai.
+Bas ye part fix karke retry karo. Pura query dobara likhne ki zarurat nahi—sirf corrected query bhej do.
+
+13. You said:
+select e.emp_name,d.dept_name,e.salary,rank() over(partition by dept_id order by salary desc) as rank from employees e join department d on e.dept_id=d.dept_id;
+14. ChatGPT said:
+
+Bhai, concept almost perfect, but ek chhota SQL issue reh gaya.
+Score: 9/10
+Sahi:
+• RANK() ✅
+• PARTITION BY dept_id ✅ — department-wise ranking.
+• ORDER BY salary DESC ✅
+• JOIN correct conceptually.
+• Required columns select kiye. ✅
+Minor issue:
+PARTITION BY dept_id
+
+JOIN ke baad dono tables mein dept_id hai, isliye ye ambiguous ho sakta hai.
+Safer:
+PARTITION BY e.dept_id
+
+Aur ek naming typo bhi hai: question mein table departments tha, tum department use kar rahe ho.
+So concept-wise 9/10, syntax/table-name correction ke baad solid answer.
+
+
+Question 3 — Subquery + GROUP BY
+Write a SQL query to find the employees whose salary is greater than the average salary of their own department.
+Return emp_name, dept_id, and salary.
+Isme subquery use karna. Query likh bhai.
+15. You said:
+select select e.emp_name,d.dept_ide.,salary from employees e join department d on e.dept_id=d.dept_id where salary>(select avg(salary) from employees e1 where e1.dept_id=d.dept_id);
+16. ChatGPT said:
+
+Bhai, logic ekdum sahi pakda hai. Ye actually correlated subquery wala correct approach hai.
+Score: 9/10
+Sahi kya tha:
+• Employee ko department ke saath JOIN kiya — ✅
+• Subquery mein department-wise AVG(salary) nikala — ✅
+• Outer employee ke dept_id ko inner query ke dept_id se correlate kiya — very good ✅
+• salary > department average condition exactly question ke according hai. ✅
+Tumhara main logic:
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees e1
+    WHERE e1.dept_id = d.dept_id
+)
+
+Ye correct correlated subquery hai.
+Minor mistakes
+Tumne start mein:
+select select
+
+likh diya — syntax typo.
+Aur:
+d.dept_ide.
+
+mein typo hai. d.dept_id hona chahiye.
+Bas itna. Concept ke liye 9/10.
+
+
+Question 4 — JOIN + GROUP BY + HAVING + Subquery
+Ab thoda interview-level mix karte hain.
+Find the departments whose total salary is greater than the average total salary across all departments.
+Return dept_id and total_salary.
+Hint nahi dunga abhi 😄 — pehle khud approach soch ke query likh.
+
+17. You said:
+samjh ni aaya ans bta de
+18. ChatGPT said:
+
+Haan bhai, isko simple way mein samajh:
+Question ka matlab hai:
+1. Har department ki total salary nikalo.
+2. Phir un department totals ka average nikalo.
+3. Sirf woh departments dikhao jinka total salary us average se zyada hai.
+Yahan subquery + GROUP BY + HAVING lagega.
+SELECT dept_id, SUM(salary) AS total_salary
+FROM employees
+GROUP BY dept_id
+HAVING SUM(salary) > (
+    SELECT AVG(total_salary)
+    FROM (
+        SELECT dept_id, SUM(salary) AS total_salary
+        FROM employees
+        GROUP BY dept_id
+    ) x
+);
+
+Simple breakdown
+Inner query:
+SELECT dept_id, SUM(salary) AS total_salary
+FROM employees
+GROUP BY dept_id
+
+Ye har department ka total salary nikalegi.
+Suppose result:
+dept_id	total_salary
+1	150000
+2	250000
+3	200000
+
+Phir:
+AVG(total_salary)
+इन totals ka average nikalega:
+(150000 + 250000 + 200000) / 3 = 200000
+Finally:
+HAVING SUM(salary) > 200000
+Toh sirf department 2 return hoga.
+Important: Is question mein nested subquery isliye aayi kyunki pehle department-wise SUM banana hai, phir un SUM values ka AVG nikalna hai.
+
+19. You said:
+accha kro aage continue
+20. ChatGPT said:
+
+Chal bhai, continue karte hain. Ab difficulty thodi increase karte hain, but CTE/advanced topics nahi.
+Question 5 — Window Function + Subquery
+Tables wahi hain: employees, departments
+Write a SQL query to find the second-highest paid employee from each department.
+Return emp_name, dept_id, and salary.
+If multiple employees have the same second-highest salary, return all of them.
+Isme RANK() + subquery wala approach use kar sakta hai, jo hum already practice kar chuke hain.
+Query likh bhai.
+21. You said:
+select emp_name,dept_id,salary from employees where salary=(select salary,rank() over(partition by department order by salary desc) as rnk and rnk=2;
+22. ChatGPT said:
+
+Bhai, attempt mein concept yaad hai, but query structure mein kuch important issues hain.
+Score: 5/10
+Sahi kya tha:
+• RANK() use karne ka idea correct hai. ✅
+• PARTITION BY department-wise ranking ke liye correct approach hai. ✅
+• salary = ... se second-highest salary filter karne ki direction samajh aa rahi hai. ✅
+Problems:
+1. Subquery mein tumne:
+SELECT salary, RANK() ...
+
+likha hai. Subquery ko yahan directly ek salary value return karni chahiye, but tum multiple columns/rows generate kar rahe ho.
+2. RANK() ka result rnk ko same query level ke WHERE mein directly filter nahi kar sakte.
+3. department column nahi hai. Humein dept_id use karna hai.
+4. rnk = 2 ko pehle ek subquery ke result mein filter karna padega.
+Hint
+Isko 2 levels mein socho:
+Level 1: Har employee ko rank do:
+RANK() OVER (
+    PARTITION BY dept_id
+    ORDER BY salary DESC
+)
+
+Level 2: Ek outer query mein sirf rnk = 2 wale employees filter karo.
+Ab retry kar bhai. Full query khud likhne ki try kar.
+23. You said:
+select emp_name,dept_id,salary from employees where salary=(select rank() over(partition by department order by salary desc) as rnk and rnk=2;
+24. ChatGPT said:
+
+Bhai, same core issue abhi bhi hai, but direction improve hui hai.
+Score: 5.5/10
+Sahi:
+• RANK() + PARTITION BY use karna hai — correct. ✅
+• rnk = 2 target bhi correct hai. ✅
+Issue:
+Tum abhi bhi RANK() ko directly WHERE salary = (subquery) ke andar use kar rahe ho.
+Aur ye:
+RANK() ... AS rnk AND rnk = 2
+
+valid SQL structure nahi hai.
+Strong hint
+Pehle ek derived result banao jisme columns hon:
+emp_name
+dept_id
+salary
+rnk
+
+Us result ke bahar:
+WHERE rnk = 2
+
+lagao.
+Structure mentally aisa hoga:
+SELECT ...
+FROM (
+    SELECT ..., RANK() ... AS rnk
+    FROM employees
+) x
+WHERE rnk = 2;
+
+Bas is structure ko use karke query likh bhai. Ab next retry mein almost ho jayega.
+25. You said:
+select emp_name,dept_id,salary,(select salary,rank() over(partition by department order by salary desc) )as rnk from employees where salary=(select salary,rank() over(partition by department order by salary desc) and rnk=2;
+26. ChatGPT said:
+
+Bhai, abhi bhi thoda confuse ho raha hai ki window function ko kis level par rakhna hai. Koi tension nahi.
+Score: 4/10
+Jo sahi hai:
+• RANK() use karna hai — ✅
+• PARTITION BY department-wise ranking ke liye — ✅
+• rnk = 2 target — ✅
+Main problem:
+Tum RANK() ko subquery ke andar baar-baar use kar rahe ho. Humein actually pehle har employee ko rank dena hai, phir us result ko filter karna hai.
+Is structure ko dekho:
+SELECT emp_name, dept_id, salary
+FROM (
+    SELECT emp_name,
+           dept_id,
+           salary,
+           RANK() OVER (
+               PARTITION BY dept_id
+               ORDER BY salary DESC
+           ) AS rnk
+    FROM employees
+) x
+WHERE rnk = 2;
+
+Ye is question ka correct answer hai.
+Ek important concept yaad rakh
+Window function ka result:
+RANK() ... AS rnk
+
+pehle generate hota hai.
+Phir outer query mein:
+WHERE rnk = 2
+
+se filter karte hain.
+Tum baar-baar salary = (subquery) approach try kar rahe the, jabki yahan salary compare karne ki zarurat hi nahi hai.
+
+
+Chal ab next question pe jaate hain.
+Question 6 — GROUP BY + HAVING + JOIN
+Find the dept_name of departments that have at least 3 employees and whose average salary is greater than 50,000.
+Return dept_name, employee_count, and average_salary.
+Is baar COUNT(), AVG(), GROUP BY, HAVING aur JOIN mix kar. Query likh bhai.
+27. You said:
+isme join krna h to tables bta ek baar
+28. ChatGPT said:
+
+Haan bhai, wahi tables use kar rahe hain:
+employees
+emp_id	emp_name	dept_id	salary
+
+departments
+dept_id	dept_name
+
+Join condition:
+employees.dept_id = departments.dept_id
+Ab question dobara:
+Find the dept_name of departments that have at least 3 employees and whose average salary is greater than 50,000.
+Return dept_name, employee_count, and average_salary.
+Chal, query likh.
+
+29. You said:
+select d.dept_name,count(e.emp_id) as emp_count,avg(e.salary) as avg_salary from employees e join department d on e.dept_id=d.dept_id group by d.dept_name having (select emp_count from employees e where emp_count>=3 and avg_salary>50000);
+30. ChatGPT said:
+
+Bhai, overall approach kaafi sahi tha, bas HAVING mein tum subquery ki taraf chale gaye jabki uski zarurat nahi thi.
+Score: 7/10
+Sahi kya tha:
+• JOIN correct approach. ✅
+• COUNT(e.emp_id) se employee count — ✅
+• AVG(e.salary) — ✅
+• GROUP BY d.dept_name — ✅
+• HAVING use karna hai — correct. ✅
+Main mistake:
+Tumne likha:
+HAVING (
+    SELECT emp_count
+    FROM employees e
+    WHERE emp_count >= 3
+      AND avg_salary > 50000
+)
+
+Yahan subquery ki zarurat bilkul nahi hai.
+COUNT() aur AVG() already grouped result par calculate ho rahe hain, so directly HAVING mein aggregate expressions use kar sakte ho.
+Hint
+Tumhare SELECT mein already ye dono calculations hain:
+COUNT(e.emp_id)
+AVG(e.salary)
+
+Bas same calculations ko HAVING mein conditions ke saath use karo:
+HAVING COUNT(...) >= 3
+   AND AVG(...) > 50000
+
+Ab retry kar bhai. Sirf HAVING wala part correct karke full query bhej.
+31. You said:
+select d.dept_name,count(e.emp_id) as emp_count,avg(e.salary) as avg_salary from employees e join department d on e.dept_id=d.dept_id group by d.dept_name having emp_count >=3 and avg_salary>50000;
+32. ChatGPT said:
+
+Bhai ab concept bilkul clear hai. Nice recovery.
+Score: 9.5/10
+Sahi:
+• JOIN ✅
+• COUNT(e.emp_id) ✅
+• AVG(e.salary) ✅
+• GROUP BY d.dept_name ✅
+• HAVING emp_count >= 3 AND avg_salary > 50000 ✅ — MySQL mein aliases HAVING mein use kar sakte ho.
+Minor issue:
+• Question mein table departments tha, tum department likh rahe ho.
+• Agar SQL dialect alias ko HAVING mein allow na kare, toh safest form:
+HAVING COUNT(e.emp_id) >= 3
+   AND AVG(e.salary) > 50000
+
+But concept-wise excellent: 9.5/10.
+
+
+Question 7 — JOIN + Window Function
+Write a SQL query to find the highest-paid employee in each department.
+Return emp_name, dept_name, and salary.
+If multiple employees have the same highest salary in a department, return all of them.
+Bhai, isme RANK() ka use kar. Query likh.
+33. You said:
+select e.emp_name,d.dept_name,e.salary from (select e.emp_name,d.dept_name,e.salary,rank() over(partition by dept_id order by salary desc) as rank from employees e)employees e join departments d on e.dept_id=d.dept_id where rank =1;
+34. ChatGPT said:
+
+Bhai, logic sahi pakdi hai, but query mein derived table ke andar kuch columns missing/aliasing issue hai.
+Score: 8/10
+Sahi kya kiya:
+• RANK() use kiya — ✅
+• PARTITION BY dept_id — department-wise ranking ✅
+• ORDER BY salary DESC — highest salary ko rank 1 ✅
+• WHERE rank = 1 — highest-paid employees filter karna ✅
+• Ties ke liye RANK() use kiya, so same highest salary wale sab return honge. ✅
+Issue:
+Tumhari inner query:
+SELECT e.emp_name, d.dept_name, e.salary,
+       RANK() ... 
+FROM employees e
+
+mein d ka alias available hi nahi hai, kyunki inner query mein departments d ka JOIN nahi kiya.
+Aur outer query mein:
+e.dept_id
+
+use kar rahe ho, lekin inner query se dept_id select hi nahi kiya.
+Hint
+Simpler approach rakho:
+Inner query mein sirf employees se:
+emp_name
+dept_id
+salary
+rank
+
+nikalo.
+Phir outer query mein departments se JOIN karke dept_name lao.
+Structure:
+SELECT ...
+FROM (
+    SELECT ..., RANK() ... AS rnk
+    FROM employees
+) e
+JOIN departments d ...
+WHERE rnk = 1
+
+Ab corrected query khud likh bhai.
+35. You said:
+tum do mai confuse hu
+36. ChatGPT said:
+
+Haan bhai, isme confuse hona normal hai. Main step-by-step tod ke samjhata hoon.
+Question tha: har department ka highest-paid employee, aur tie ho toh sabko return karna hai.
+Step 1: Pehle ranking banao
+Sirf employees table se:
+SELECT emp_name,
+       dept_id,
+       salary,
+       RANK() OVER (
+           PARTITION BY dept_id
+           ORDER BY salary DESC
+       ) AS rnk
+FROM employees;
+
+Isse har employee ko apne department ke andar rank milega.
+Example:
+emp_name	dept_id	salary	rnk
+Rahul	1	80000	1
+Amit	1	70000	2
+Ravi	2	90000	1
+Sumit	2	90000	1
+
+Step 2: Sirf rank 1 chahiye
+Is ranking ko subquery bana ke:
+SELECT emp_name, dept_id, salary
+FROM (
+    SELECT emp_name,
+           dept_id,
+           salary,
+           RANK() OVER (
+               PARTITION BY dept_id
+               ORDER BY salary DESC
+           ) AS rnk
+    FROM employees
+) e
+WHERE rnk = 1;
+Step 3: Ab dept_name chahiye
+dept_name departments table mein hai, isliye ab JOIN:
+SELECT e.emp_name,
+       d.dept_name,
+       e.salary
+FROM (
+    SELECT emp_name,
+           dept_id,
+           salary,
+           RANK() OVER (
+               PARTITION BY dept_id
+               ORDER BY salary DESC
+           ) AS rnk
+    FROM employees
+) e
+JOIN departments d
+    ON e.dept_id = d.dept_id
+WHERE e.rnk = 1;
+Bas pattern yaad rakh:
+employees → RANK → rnk=1 → departments JOIN → dept_name
+Tumhara original approach galat nahi tha; bas JOIN ko inner query mein daal diya tha, jabki yahan pehle ranking karna easier hai, phir department name ke liye JOIN.
+Chal, next question mein isi pattern ko thoda modify karenge.
